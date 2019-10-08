@@ -1,5 +1,5 @@
 use std::mem;
-use std::os::raw::{c_int, c_void};
+use std::os::raw::c_void;
 use std::ptr;
 
 use widestring::WideCString;
@@ -42,14 +42,14 @@ impl<T> Drop for PtrBox<T> {
 fn c_tokenize(text: &str) -> Result<String, TokenizeError> {
     let input = WideCString::from_str(text).unwrap();
 
-    let mut output = PtrBox::alloc_array(input.len() * 2);
+    let mut output_len = input.len() * 2;
+    let mut output = PtrBox::alloc_array(output_len);
 
-    let mut output_len = input.len() as c_int * 2;
     match unsafe {
         alpino_tokenizer_sys::new_t_accepts(
             input.as_ptr(),
             &mut output.as_mut_ptr(),
-            &mut output_len as *mut c_int,
+            &mut output_len,
         )
     } {
         0 => Err(TokenizeError::NotInInputLanguage),
@@ -58,9 +58,8 @@ fn c_tokenize(text: &str) -> Result<String, TokenizeError> {
         _ => unreachable!(),
     }?;
 
-    let output_str =
-        unsafe { WideCString::from_ptr_with_nul(output.as_mut_ptr(), output_len as usize) }
-            .map_err(|_| TokenizeError::NoStringTerminator)?;
+    let output_str = unsafe { WideCString::from_ptr_with_nul(output.as_mut_ptr(), output_len) }
+        .map_err(|_| TokenizeError::NoStringTerminator)?;
 
     Ok(output_str.to_string_lossy())
 }
