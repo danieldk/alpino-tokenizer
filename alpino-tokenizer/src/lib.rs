@@ -1,6 +1,9 @@
 mod ctokenize;
 use ctokenize::{c_tokenize, TokenizeError};
 
+mod preproc;
+use preproc::preprocess;
+
 mod postproc;
 use postproc::post_process;
 
@@ -11,7 +14,8 @@ pub(crate) use util::str_to_tokens;
 ///
 /// The paragraph should be on a single line.
 pub fn tokenize(text: &str) -> Result<Vec<Vec<String>>, TokenizeError> {
-    let tokenized = c_tokenize(text)?;
+    let tokenized = preprocess(text);
+    let tokenized = c_tokenize(&tokenized)?;
     let tokenized = post_process(&tokenized);
     Ok(str_to_tokens(&tokenized))
 }

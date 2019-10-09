@@ -59,10 +59,19 @@ fn fix_quotes(text: &str) -> Cow<str> {
 pub fn post_process(text: &str) -> String {
     let text = fix_quotes(text);
     let text = fix_parens(&text);
+    let text = remove_enumeration_markers(&text);
     let text = fix_news_article_opening(&text);
     let text = fix_dashes(&text);
 
     text.into_owned()
+}
+
+fn remove_enumeration_markers(text: &str) -> Cow<str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new("([0-9]+)#(\\s)").unwrap();
+    }
+
+    RE.replace_all(&text, "$1.$2")
 }
 
 #[cfg(test)]
@@ -113,6 +122,19 @@ mod tests {
         assert_eq!(
             post_process("Hij is in \" top\"-vorm ."),
             "Hij is in \"top\"-vorm ."
+        );
+    }
+
+    #[test]
+    fn test_remove_enumeration_markers() {
+        assert_eq!(
+            post_process("1# boter, 2# kaas en 3# eieren"),
+            "1. boter, 2. kaas en 3. eieren"
+        );
+
+        assert_eq!(
+            post_process("1# boter, 2# kaas en 3# eieren, 1# foo en 2# bar"),
+            "1. boter, 2. kaas en 3. eieren, 1. foo en 2. bar"
         );
     }
 }
