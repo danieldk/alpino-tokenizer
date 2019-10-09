@@ -10,7 +10,7 @@ fn fix_dashes(text: &str) -> Cow<str> {
         static ref RE: Regex = Regex::new(" -([^ ][^-]*[^ ])- ").unwrap();
     }
 
-    RE.replace_all(text.as_ref(), |captures: &Captures| {
+    RE.replace_all(text, |captures: &Captures| {
         let m = captures.get(0).unwrap();
         let left = &text[..m.start()];
         let right = &text[m.end()..];
@@ -35,7 +35,7 @@ fn fix_news_article_opening(text: &str) -> Cow<str> {
             Regex::new("(?:^|\n)([[:upper:]]{2}[[:upper:]() /,0-9.-]* -+) ").unwrap();
     }
 
-    RE.replace_all(text.as_ref(), "$1\n")
+    RE.replace_all(text, "$1\n")
 }
 
 // ( buiten)gewoon -> (buiten)gewoon
@@ -44,7 +44,7 @@ fn fix_parens(text: &str) -> Cow<str> {
         static ref RE: Regex = Regex::new("[(] ([[:lower:][:upper:]]+[)])").unwrap();
     }
 
-    RE.replace_all(text.as_ref(), "($1")
+    RE.replace_all(text, "($1")
 }
 
 // # ' top'-vorm -> 'top'-vorm
@@ -53,10 +53,10 @@ fn fix_quotes(text: &str) -> Cow<str> {
         static ref RE: Regex = Regex::new("([`'\"]) ([[:upper:][:lower:]]+[`'\"]-)").unwrap();
     }
 
-    RE.replace_all(text.as_ref(), "$1$2")
+    RE.replace_all(text, "$1$2")
 }
 
-pub fn post_process(text: &str) -> String {
+pub fn postprocess(text: &str) -> String {
     let text = fix_quotes(text);
     let text = fix_parens(&text);
     let text = remove_enumeration_markers(&text);
@@ -76,64 +76,64 @@ fn remove_enumeration_markers(text: &str) -> Cow<str> {
 
 #[cfg(test)]
 mod tests {
-    use super::post_process;
+    use super::postprocess;
 
     #[test]
-    fn test_fix_dashes() {
+    fn fix_dashes() {
         assert_eq!(
-            post_process("huis- tuin- en keuken"),
+            postprocess("huis- tuin- en keuken"),
             "huis- tuin- en keuken"
         );
 
         assert_eq!(
-            post_process("ik ga -zoals gezegd- naar huis"),
+            postprocess("ik ga -zoals gezegd- naar huis"),
             "ik ga - zoals gezegd - naar huis"
         );
     }
 
     #[test]
-    fn test_new_article_opening() {
+    fn new_article_opening() {
         assert_eq!(
-            post_process("AMSTERDAM - De hoofdstad van Nederland"),
+            postprocess("AMSTERDAM - De hoofdstad van Nederland"),
             "AMSTERDAM -\nDe hoofdstad van Nederland"
         );
     }
 
     #[test]
-    fn test_fix_parens() {
+    fn fix_parens() {
         assert_eq!(
-            post_process("Dat is ( buiten)gewoon snel ."),
+            postprocess("Dat is ( buiten)gewoon snel ."),
             "Dat is (buiten)gewoon snel ."
         );
     }
 
     #[test]
-    fn test_fix_quotes() {
+    fn fix_quotes() {
         assert_eq!(
-            post_process("Hij is in ' top'-vorm ."),
+            postprocess("Hij is in ' top'-vorm ."),
             "Hij is in 'top'-vorm ."
         );
 
         assert_eq!(
-            post_process("Hij is in ` top`-vorm ."),
+            postprocess("Hij is in ` top`-vorm ."),
             "Hij is in `top`-vorm ."
         );
 
         assert_eq!(
-            post_process("Hij is in \" top\"-vorm ."),
+            postprocess("Hij is in \" top\"-vorm ."),
             "Hij is in \"top\"-vorm ."
         );
     }
 
     #[test]
-    fn test_remove_enumeration_markers() {
+    fn remove_enumeration_markers() {
         assert_eq!(
-            post_process("1# boter, 2# kaas en 3# eieren"),
+            postprocess("1# boter, 2# kaas en 3# eieren"),
             "1. boter, 2. kaas en 3. eieren"
         );
 
         assert_eq!(
-            post_process("1# boter, 2# kaas en 3# eieren, 1# foo en 2# bar"),
+            postprocess("1# boter, 2# kaas en 3# eieren, 1# foo en 2# bar"),
             "1. boter, 2. kaas en 3. eieren, 1. foo en 2. bar"
         );
     }

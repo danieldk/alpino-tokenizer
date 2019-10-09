@@ -50,7 +50,7 @@ mod tests {
     use super::preprocess;
 
     #[test]
-    fn test_add_enumeration_markers() {
+    fn add_enumeration_markers() {
         assert_eq!(
             preprocess("1. boter, 2. kaas en 3. eieren"),
             "1# boter, 2# kaas en 3# eieren"
