@@ -26,7 +26,7 @@ impl fmt::Display for TokenizeError {
         use TokenizeError::*;
         match self {
             AllocationError => write!(f, "could not allocate memory for output string")?,
-            InputContainsNul => write!(f, "the input string contained a NUL character")?,
+            InputContainsNul => write!(f, "the input string contains a NUL character")?,
             NoStringTerminator => write!(f, "the transducer returned a non-terminated string")?,
             NotInInputLanguage => write!(
                 f,
@@ -96,7 +96,7 @@ mod tests {
     use super::{c_tokenize, TokenizeError};
 
     #[test]
-    fn test_c_tokenize() {
+    fn c_tokenize_works() {
         assert_eq!(
             c_tokenize("Dit is een zin. En dit is nog een zin.").unwrap(),
             "Dit is een zin .\nEn dit is nog een zin ."
@@ -104,7 +104,7 @@ mod tests {
     }
 
     #[test]
-    fn test_handle_nul_in_input() {
+    fn handle_nul_in_input() {
         assert_eq!(
             c_tokenize("Deze string bevat een NUL karakter\0"),
             Err(TokenizeError::InputContainsNul)

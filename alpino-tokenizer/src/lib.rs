@@ -5,7 +5,7 @@ mod preproc;
 use preproc::preprocess;
 
 mod postproc;
-use postproc::post_process;
+use postproc::postprocess;
 
 mod util;
 pub(crate) use util::str_to_tokens;
@@ -16,7 +16,7 @@ pub(crate) use util::str_to_tokens;
 pub fn tokenize(text: &str) -> Result<Vec<Vec<String>>, TokenizeError> {
     let tokenized = preprocess(text);
     let tokenized = c_tokenize(&tokenized)?;
-    let tokenized = post_process(&tokenized);
+    let tokenized = postprocess(&tokenized);
     Ok(str_to_tokens(&tokenized))
 }
 
