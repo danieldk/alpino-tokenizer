@@ -8,4 +8,6 @@ edition = "2018"
 alpino-tokenizer = { path = "../alpino-tokenizer", version = "0.1.0" }
 clap = "2"
 conllx = "0.12"
+lazy_static = "1"
+regex = "1"
 stdinout = "0.4"
