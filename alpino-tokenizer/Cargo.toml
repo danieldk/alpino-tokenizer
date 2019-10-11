@@ -2,6 +2,10 @@
 name = "alpino-tokenizer"
 version = "0.1.0"
 authors = ["Daniël de Kok <me@danieldk.eu>"]
+description = "Wrapper around the Alpino tokenizer for Dutch"
+homepage = "https://github.com/danieldk/alpino-tokenizer"
+repository = "https://github.com/danieldk/alpino-tokenizer.git"
+license = "LGPL-2.1-or-later"
 edition = "2018"
 
 [dependencies]
