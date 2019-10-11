@@ -6,6 +6,7 @@ use std::ptr;
 
 use widestring::WideCString;
 
+/// Tokenization error.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TokenizeError {
     /// Could not allocate memory for tokenization output.

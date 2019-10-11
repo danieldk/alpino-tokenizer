@@ -1,5 +1,6 @@
 mod ctokenize;
-use ctokenize::{c_tokenize, TokenizeError};
+use ctokenize::c_tokenize;
+pub use ctokenize::TokenizeError;
 
 mod preproc;
 use preproc::preprocess;
