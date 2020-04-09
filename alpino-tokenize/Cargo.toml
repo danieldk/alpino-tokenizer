@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 alpino-tokenizer = { path = "../alpino-tokenizer", version = "0.1.0" }
 clap = "2"
-conllx = "0.12"
+conllu = "0.3"
 lazy_static = "1"
 regex = "1"
 stdinout = "0.4"

@@ -1,11 +1,10 @@
 use std::io::{BufRead, BufWriter};
-use std::iter::FromIterator;
 
 use alpino_tokenizer::tokenize;
 use clap::{App, Arg, ArgMatches};
-use conllx::graph::Sentence;
-use conllx::io::{WriteSentence, Writer};
-use conllx::token::{Features, TokenBuilder};
+use conllu::graph::{Comment, Sentence};
+use conllu::io::{WriteSentence, Writer};
+use conllu::token::TokenBuilder;
 use lazy_static::lazy_static;
 use regex::Regex;
 use stdinout::{Input, OrExit, Output};
@@ -26,19 +25,20 @@ lazy_static! {
         Regex::new("<doc.+id=\"([^\"]+)\".+title=\"([^\"]+)\"").unwrap();
 }
 
-pub struct ConllxApp {
+pub struct ConlluApp {
     input_filename: Option<String>,
     output_filename: Option<String>,
     identifiers: bool,
     wikipedia: bool,
 }
 
-impl ConllxApp {
+impl ConlluApp {
     fn tokenize_para(
         &self,
         lines: &[String],
         writer: &mut impl WriteSentence,
         doc_id: Option<&String>,
+        doc_title: Option<&String>,
         para_id: &mut usize,
     ) {
         if lines.is_empty() {
@@ -49,24 +49,31 @@ impl ConllxApp {
         let tokenized = tokenize(&text).or_exit("Cannot tokenize paragraph", 1);
 
         for (sent_id, sent) in tokenized.into_iter().enumerate() {
-            let graph = if self.identifiers {
-                let mut features = Features::from_iter(vec![
-                    ("sent".to_string(), Some(sent_id.to_string())),
-                    ("para".to_string(), Some(para_id.to_string())),
-                ]);
+            let mut graph = sent
+                .into_iter()
+                .map(|t| TokenBuilder::new(t).into())
+                .collect::<Sentence>();
 
-                if doc_id.is_some() {
-                    features.insert("doc".to_owned(), doc_id.map(ToOwned::to_owned));
+            if self.identifiers {
+                if let Some(doc_title) = doc_title {
+                    graph.comments_mut().push(Comment::AttrVal {
+                        attr: "title".to_string(),
+                        val: doc_title.clone(),
+                    });
                 }
 
-                sent.into_iter()
-                    .map(|t| TokenBuilder::new(t).features(features.clone()).into())
-                    .collect::<Sentence>()
-            } else {
-                sent.into_iter()
-                    .map(|t| TokenBuilder::new(t).into())
-                    .collect::<Sentence>()
-            };
+                if let Some(doc_id) = doc_id {
+                    graph.comments_mut().push(Comment::AttrVal {
+                        attr: "sent_id".to_string(),
+                        val: format!("d.{}.p.{}.s.{}", doc_id, para_id, sent_id),
+                    })
+                } else {
+                    graph.comments_mut().push(Comment::AttrVal {
+                        attr: "sent_id".to_string(),
+                        val: format!("p.{}.s.{}", para_id, sent_id),
+                    })
+                };
+            }
 
             writer
                 .write_sentence(&graph)
@@ -77,9 +84,9 @@ impl ConllxApp {
     }
 }
 
-impl TokenizeApp for ConllxApp {
+impl TokenizeApp for ConlluApp {
     fn app() -> App<'static, 'static> {
-        App::new("conllx")
+        App::new("conllu")
             .about("Tokenize input and output as CoNLL-X")
             .arg(Arg::with_name(INPUT).help("Input corpus").index(1))
             .arg(Arg::with_name(OUTPUT).help("Output CoNLL-X").index(2))
@@ -102,7 +109,7 @@ impl TokenizeApp for ConllxApp {
         let identifiers = matches.is_present(IDENTIFIERS);
         let wikipedia = matches.is_present(WIKIPEDIA);
 
-        ConllxApp {
+        ConlluApp {
             input_filename,
             output_filename,
             identifiers,
@@ -122,21 +129,31 @@ impl TokenizeApp for ConllxApp {
         let mut para = vec![];
         let mut para_id = 0;
         let mut doc_id = None;
+        let mut doc_title = None;
 
         for line in reader.lines() {
             let line = line.or_exit("Cannot read line", 1);
 
             if line.trim().is_empty() {
-                self.tokenize_para(&para, &mut writer, doc_id.as_ref(), &mut para_id);
+                self.tokenize_para(
+                    &para,
+                    &mut writer,
+                    doc_id.as_ref(),
+                    doc_title.as_ref(),
+                    &mut para_id,
+                );
                 para.clear();
             } else if self.wikipedia {
                 if line.starts_with("<doc") {
                     match WIKIPEDIA_DOC_EXPR.captures(&line) {
                         Some(captures) => {
-                            doc_id = Some(captures.get(1).unwrap().as_str().to_owned())
+                            doc_id = Some(captures.get(1).unwrap().as_str().to_owned());
+                            doc_title = Some(captures.get(2).unwrap().as_str().to_owned());
                         }
                         None => eprintln!("Could not read identifier in doc tag: {}", line),
                     }
+
+                    para_id = 0;
                 } else if !line.starts_with("</doc") {
                     para.push(line);
                 }
@@ -145,6 +162,12 @@ impl TokenizeApp for ConllxApp {
             }
         }
 
-        self.tokenize_para(&para, &mut writer, doc_id.as_ref(), &mut para_id);
+        self.tokenize_para(
+            &para,
+            &mut writer,
+            doc_id.as_ref(),
+            doc_title.as_ref(),
+            &mut para_id,
+        );
     }
 }

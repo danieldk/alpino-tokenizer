@@ -14,7 +14,7 @@ static DEFAULT_CLAP_SETTINGS: &[AppSettings] = &[
 ];
 
 fn main() {
-    let apps = vec![conll::ConllxApp::app()];
+    let apps = vec![conll::ConlluApp::app()];
 
     let cli = App::new("finalfusion")
         .settings(DEFAULT_CLAP_SETTINGS)
@@ -37,7 +37,7 @@ fn main() {
             write_completion_script(cli, shell.parse::<Shell>().unwrap());
         }
 
-        "conllx" => conll::ConllxApp::parse(matches.subcommand_matches("conllx").unwrap()).run(),
+        "conllu" => conll::ConlluApp::parse(matches.subcommand_matches("conllu").unwrap()).run(),
         _unknown => unreachable!(),
     }
 }
