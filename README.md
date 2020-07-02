@@ -3,9 +3,6 @@
 This is a Rust crate that wraps the
 [Alpino](https://www.let.rug.nl/vannoord/alp/Alpino/) tokenizer.
 
-**Warning:** The implementation of the Rust crate is still incomplete! Do not
-use.
-
 ## Copyright
 
 (C) 1999-2018
