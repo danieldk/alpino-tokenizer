@@ -1,7 +1,36 @@
 ## alpino-tokenizer
 
-This is a Rust crate that wraps the
-[Alpino](https://www.let.rug.nl/vannoord/alp/Alpino/) tokenizer.
+This repository provides a Rust wrapper of the
+[Alpino](https://www.let.rug.nl/vannoord/alp/Alpino/) tokenizer. You
+can use the
+[alpino-tokenizer](https://crates.io/crates/alpino-tokenizer) crate in
+your Rust programs.
+
+For convenience, an
+[alpino-tokenize](https://crates.io/crates/alpino-tokenize)
+command-line utility is provided for tokenizing text on from the shell
+or in shell scripts.
+
+## Installing the `alpino-tokenize` command-line utility
+
+### cargo
+
+The `alpino-tokenize` utility can be installed with
+[cargo](https://rustup.rs/):
+
+```shell
+$ cargo install alpino-tokenize
+```
+
+### Nix
+
+This repository is also a Nix flake. If you use a Nix version that
+supports flakes, you can start a shell with `alpino-tokenize` as
+follows:
+
+```
+$ nix shell github:danieldk/alpino-tokenizer
+```
 
 ## Copyright
 
