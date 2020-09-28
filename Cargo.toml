@@ -1,2 +1,2 @@
 [workspace]
-members = ["alpino-tokenizer-sys", "alpino-tokenizer", "alpino-tokenize"]
+members = ["alpino-tokenizer", "alpino-tokenize"]
