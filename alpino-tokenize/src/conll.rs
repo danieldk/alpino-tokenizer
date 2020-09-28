@@ -1,6 +1,7 @@
-use std::io::{BufRead, BufWriter};
+use std::fs::File;
+use std::io::{BufRead, BufReader, BufWriter};
 
-use alpino_tokenizer::tokenize;
+use alpino_tokenizer::Tokenizer;
 use clap::{App, Arg, ArgMatches};
 use conllu::graph::{Comment, Sentence};
 use conllu::io::{WriteSentence, Writer};
@@ -18,6 +19,7 @@ static WIKIPEDIA: &str = "WIKIPEDIA";
 // Argument constants
 static INPUT: &str = "INPUT";
 static OUTPUT: &str = "OUTPUT";
+static PROTOBUF: &str = "PROTOBUF";
 
 // Expressions
 lazy_static! {
@@ -28,6 +30,7 @@ lazy_static! {
 pub struct ConlluApp {
     input_filename: Option<String>,
     output_filename: Option<String>,
+    protobuf_filename: String,
     identifiers: bool,
     wikipedia: bool,
 }
@@ -35,6 +38,7 @@ pub struct ConlluApp {
 impl ConlluApp {
     fn tokenize_para(
         &self,
+        tokenizer: &Tokenizer,
         lines: &[String],
         writer: &mut impl WriteSentence,
         doc_id: Option<&String>,
@@ -46,7 +50,9 @@ impl ConlluApp {
         }
 
         let text = lines.join(" ");
-        let tokenized = tokenize(&text).or_exit("Cannot tokenize paragraph", 1);
+        let tokenized = tokenizer
+            .tokenize(&text)
+            .or_exit("Cannot tokenize paragraph", 1);
 
         for (sent_id, sent) in tokenized.into_iter().enumerate() {
             let mut graph = sent
@@ -88,8 +94,9 @@ impl TokenizeApp for ConlluApp {
     fn app() -> App<'static, 'static> {
         App::new("conllu")
             .about("Tokenize input and output as CoNLL-X")
-            .arg(Arg::with_name(INPUT).help("Input corpus").index(1))
-            .arg(Arg::with_name(OUTPUT).help("Output CoNLL-X").index(2))
+            .arg(Arg::with_name(PROTOBUF).help("Tokenizer protobuf").index(1))
+            .arg(Arg::with_name(INPUT).help("Input corpus").index(2))
+            .arg(Arg::with_name(OUTPUT).help("Output CoNLL-X").index(3))
             .arg(
                 Arg::with_name(IDENTIFIERS)
                     .short("i")
@@ -105,6 +112,10 @@ impl TokenizeApp for ConlluApp {
     fn parse(matches: &ArgMatches) -> Self {
         let input_filename = matches.value_of(INPUT).map(ToOwned::to_owned);
         let output_filename = matches.value_of(OUTPUT).map(ToOwned::to_owned);
+        let protobuf_filename = matches
+            .value_of(PROTOBUF)
+            .expect("Protobuf filename must be specified")
+            .to_owned();
 
         let identifiers = matches.is_present(IDENTIFIERS);
         let wikipedia = matches.is_present(WIKIPEDIA);
@@ -112,12 +123,19 @@ impl TokenizeApp for ConlluApp {
         ConlluApp {
             input_filename,
             output_filename,
+            protobuf_filename,
             identifiers,
             wikipedia,
         }
     }
 
     fn run(&self) {
+        let protobuf = BufReader::new(
+            File::open(&self.protobuf_filename)
+                .or_exit("Cannot open tokenizer protobuf definition", 1),
+        );
+        let tokenizer = Tokenizer::from_buf_read(protobuf).or_exit("Cannot load tokenizer", 1);
+
         let input = Input::from(self.input_filename.as_ref());
         let reader = input.buf_read().or_exit("Cannot open input", 1);
 
@@ -136,6 +154,7 @@ impl TokenizeApp for ConlluApp {
 
             if line.trim().is_empty() {
                 self.tokenize_para(
+                    &tokenizer,
                     &para,
                     &mut writer,
                     doc_id.as_ref(),
@@ -163,6 +182,7 @@ impl TokenizeApp for ConlluApp {
         }
 
         self.tokenize_para(
+            &tokenizer,
             &para,
             &mut writer,
             doc_id.as_ref(),

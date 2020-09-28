@@ -5,12 +5,14 @@ authors = ["Daniël de Kok <me@danieldk.eu>"]
 description = "Wrapper around the Alpino tokenizer for Dutch"
 homepage = "https://github.com/danieldk/alpino-tokenizer"
 repository = "https://github.com/danieldk/alpino-tokenizer.git"
-license = "LGPL-2.1-or-later"
+license = "Apache-2.0"
 edition = "2018"
 
 [dependencies]
-alpino-tokenizer-sys = { path = "../alpino-tokenizer-sys", version = "0.2" }
 lazy_static = "1"
-libc = "0.2"
+prost = "0.6"
 regex = "1"
-widestring = "0.4"
+thiserror = "1"
+
+[build-dependencies]
+prost-build = "0.6"
