@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter};
 
-use alpino_tokenizer::Tokenizer;
+use alpino_tokenizer::{AlpinoTokenizer, Tokenizer};
 use clap::{App, Arg, ArgMatches};
 use conllu::graph::{Comment, Sentence};
 use conllu::io::{WriteSentence, Writer};
@@ -38,7 +38,7 @@ pub struct ConlluApp {
 impl ConlluApp {
     fn tokenize_para(
         &self,
-        tokenizer: &Tokenizer,
+        tokenizer: &AlpinoTokenizer,
         lines: &[String],
         writer: &mut impl WriteSentence,
         doc_id: Option<&String>,
@@ -134,7 +134,8 @@ impl TokenizeApp for ConlluApp {
             File::open(&self.protobuf_filename)
                 .or_exit("Cannot open tokenizer protobuf definition", 1),
         );
-        let tokenizer = Tokenizer::from_buf_read(protobuf).or_exit("Cannot load tokenizer", 1);
+        let tokenizer =
+            AlpinoTokenizer::from_buf_read(protobuf).or_exit("Cannot load tokenizer", 1);
 
         let input = Input::from(self.input_filename.as_ref());
         let reader = input.buf_read().or_exit("Cannot open input", 1);
