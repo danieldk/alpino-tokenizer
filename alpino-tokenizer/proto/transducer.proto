@@ -11,6 +11,6 @@ message Transition {
   bool is_last_of_state = 2;
   bool is_final_state = 3;
   uint32 next = 4;
-  string output = 5;
-  string final_output = 6;
+  repeated uint32 output = 5;
+  repeated uint32 final_output = 6;
 }
