@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 use std::io::BufRead;
 
 use crate::proto::Transducer;
@@ -43,6 +43,7 @@ impl FiniteStateTokenizer {
     {
         let mut output = String::new();
 
+        let mut unknown_queue = VecDeque::new();
         let mut trans_offset = 1;
         let mut transition = &self.transducer.transitions[trans_offset];
         for ch in chars {
@@ -51,32 +52,61 @@ impl FiniteStateTokenizer {
             let symbol = ch as u32;
 
             if transition.symbol != 1 || self.known_symbols.contains(&symbol) {
+                // If the character is unknown and we are in a transition that handles
+                // unknown characters, we are done. Otherwise, find a transition matching
+                // the character.
                 if transition.symbol == 2 && !self.known_symbols.contains(&symbol) {
-                    output.extend(transition.output.chars().map(|out_ch| {
-                        if out_ch == char::from(2) {
-                            ch
-                        } else {
-                            out_ch
-                        }
-                    }))
+                    unknown_queue.push_back(ch);
                 } else {
+                    // Linearly scan the transitions until we have found one that matches
+                    // the character.
                     while !transition.is_last_of_state && symbol > transition.symbol {
                         trans_offset += 1;
                         transition = &self.transducer.transitions[trans_offset];
                     }
 
+                    // If the current transition is not a match, the string is not in the
+                    // language of the transducer.
                     if transition.symbol != symbol {
                         return None;
-                    } else {
-                        output.push_str(&transition.output);
                     }
                 }
             }
+
+            // Append transition output, replacing unknown characters from
+            // the unknown character queue.
+            output.extend(Self::replace_output_with_queue(
+                &transition.output,
+                &mut unknown_queue,
+            ));
         }
 
-        output.push_str(&transition.final_output);
+        // Append final output, replacing unknown characters from the unknown
+        // character queue.
+        output.extend(Self::replace_output_with_queue(
+            &transition.final_output,
+            &mut unknown_queue,
+        ));
 
         Some(output)
+    }
+    fn replace_output_with_queue<'a>(
+        output: &'a [u32],
+        unknown_queue: &'a mut VecDeque<char>,
+    ) -> impl Iterator<Item = char> + 'a {
+        // We panic on an empty queue or an invalid character in the
+        // output, since this implies an incorrect automaton. Perhaps
+        // we should validate these when reading the transducer?
+        output.iter().map(move |&c| {
+            if c == 2 {
+                unknown_queue
+                    .pop_front()
+                    .expect("Malformed transducer: unknown character queue is empty.")
+            } else {
+                std::char::from_u32(c)
+                    .expect("Malformed transducer: invalid character in transition output")
+            }
+        })
     }
 }
 
