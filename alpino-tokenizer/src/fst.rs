@@ -1,10 +1,70 @@
 use std::collections::{HashSet, VecDeque};
 use std::io::BufRead;
 
-use crate::proto::Transducer;
+use prost_derive::Message;
+
+use crate::small_string::SmallString;
 use crate::tokenizer::Tokenizer;
 use crate::util::str_to_tokens;
 use crate::TokenizerError;
+
+struct Transducer {
+    pub transitions: Vec<Transition>,
+}
+
+/// Protobuf transition.
+///
+/// This data type should only be used during deserialization. Actual
+/// transitions are better represented using `Transition`, which performs
+/// the small string optimization.
+#[derive(Clone, PartialEq, Message)]
+struct TransitionProto {
+    #[prost(uint32, tag = "1")]
+    pub symbol: u32,
+
+    #[prost(bool, tag = "2")]
+    pub is_last_of_state: bool,
+
+    #[prost(bool, tag = "3")]
+    pub is_final_state: bool,
+
+    #[prost(uint32, tag = "4")]
+    pub next: u32,
+
+    #[prost(string, tag = "5")]
+    pub output: String,
+
+    #[prost(string, tag = "6")]
+    pub final_output: String,
+}
+
+/// Transition of a finite state transducer.
+struct Transition {
+    pub symbol: u32,
+
+    pub is_last_of_state: bool,
+
+    pub is_final_state: bool,
+
+    pub next: u32,
+
+    pub output: SmallString,
+
+    pub final_output: SmallString,
+}
+
+impl From<TransitionProto> for Transition {
+    fn from(trans: TransitionProto) -> Self {
+        Self {
+            symbol: trans.symbol,
+            is_last_of_state: trans.is_last_of_state,
+            is_final_state: trans.is_final_state,
+            next: trans.next,
+            output: trans.output.into(),
+            final_output: trans.final_output.into(),
+        }
+    }
+}
 
 /// Finite state tokenizer and sentence splitter.
 ///
@@ -27,13 +87,20 @@ impl FiniteStateTokenizer {
     {
         let mut data = Vec::new();
         read.read_to_end(&mut data)?;
+        let mut slice = &data[..];
 
-        let transducer: Transducer = prost::Message::decode(&*data)?;
-        let known_symbols = transducer.transitions.iter().map(|t| t.symbol).collect();
+        let mut transitions: Vec<Transition> = Vec::new();
+
+        while !slice.is_empty() {
+            let transition: TransitionProto = prost::Message::decode_length_delimited(&mut slice)?;
+            transitions.push(transition.into());
+        }
+
+        let known_symbols = transitions.iter().map(|t| t.symbol).collect();
 
         Ok(FiniteStateTokenizer {
             known_symbols,
-            transducer,
+            transducer: Transducer { transitions },
         })
     }
 
@@ -91,20 +158,20 @@ impl FiniteStateTokenizer {
         Some(output)
     }
     fn replace_output_with_queue<'a>(
-        output: &'a [u32],
+        output: &'a str,
         unknown_queue: &'a mut VecDeque<char>,
     ) -> impl Iterator<Item = char> + 'a {
-        // We panic on an empty queue or an invalid character in the
-        // output, since this implies an incorrect automaton. Perhaps
-        // we should validate these when reading the transducer?
-        output.iter().map(move |&c| {
-            if c == 2 {
+        // We panic on an empty queue, since this implies an incorrect
+        // automaton. Perhaps we could validate these when reading the
+        // transducer? Seems prohibitively expensive, since we would
+        // have to check every possible path?
+        output.chars().map(move |c| {
+            if c == char::from(2) {
                 unknown_queue
                     .pop_front()
                     .expect("Malformed transducer: unknown character queue is empty.")
             } else {
-                std::char::from_u32(c)
-                    .expect("Malformed transducer: invalid character in transition output")
+                c
             }
         })
     }

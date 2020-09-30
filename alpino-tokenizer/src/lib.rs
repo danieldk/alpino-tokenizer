@@ -30,11 +30,11 @@ pub use alpino::AlpinoTokenizer;
 mod fst;
 pub use fst::FiniteStateTokenizer;
 
-mod proto;
-
 mod preproc;
 
 mod postproc;
+
+mod small_string;
 
 mod tokenizer;
 pub use tokenizer::{Tokenizer, TokenizerError};
