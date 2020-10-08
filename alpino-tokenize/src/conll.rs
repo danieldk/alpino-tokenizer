@@ -94,7 +94,12 @@ impl TokenizeApp for ConlluApp {
     fn app() -> App<'static, 'static> {
         App::new("conllu")
             .about("Tokenize input and output as CoNLL-X")
-            .arg(Arg::with_name(PROTOBUF).help("Tokenizer protobuf").index(1))
+            .arg(
+                Arg::with_name(PROTOBUF)
+                    .help("Tokenizer protobuf")
+                    .required(true)
+                    .index(1),
+            )
             .arg(Arg::with_name(INPUT).help("Input corpus").index(2))
             .arg(Arg::with_name(OUTPUT).help("Output CoNLL-X").index(3))
             .arg(
