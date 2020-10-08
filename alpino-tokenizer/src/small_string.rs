@@ -21,9 +21,10 @@ const SMALL_STR_LEN: usize = (2 * mem::size_of::<Box<String>>()) - 2;
 /// The string type is immutable to simplify the implementation.
 #[derive(Clone, Debug, PartialEq)]
 pub enum SmallString {
-    // String is a Vec<u8>, so on a 32-bit machine, we have
-    // ptr + cap + len = 12 bytes.
+    /// Small string representation.
     Array { data: [u8; SMALL_STR_LEN], len: u8 },
+
+    /// Long string representation.
     String(Box<String>),
 }
 
