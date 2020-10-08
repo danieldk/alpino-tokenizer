@@ -1,10 +1,17 @@
 ## alpino-tokenizer
 
-This repository provides a Rust wrapper of the
-[Alpino](https://www.let.rug.nl/vannoord/alp/Alpino/) tokenizer. You
-can use the
-[alpino-tokenizer](https://crates.io/crates/alpino-tokenizer) crate in
-your Rust programs.
+This Rust crate provides a tokenizer based on finite state transducers.
+It is primarily designed to use the
+[Alpino](https://www.let.rug.nl/vannoord/alp/Alpino/) tokenizer for
+Dutch, but in principle, you could load a tokenizer for any language.
+
+The transducer of the Alpino tokenizer can be
+[downloaded](https://github.com/danieldk/alpino-tokenizer/releases/download/0.3.0/alpino-tokenizer-20200315.proto.gz).
+We will synchronize the transducer regularly as the tokenizer in
+Alpino is updated.
+
+You can use the [alpino-tokenizer](https://crates.io/crates/alpino-tokenizer)
+crate to integrate the tokenizer in your Rust programs.
 
 For convenience, an
 [alpino-tokenize](https://crates.io/crates/alpino-tokenize)
