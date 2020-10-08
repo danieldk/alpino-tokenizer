@@ -10,9 +10,9 @@ dependencies = [
 
 [[package]]
 name = "alpino-tokenize"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
- "alpino-tokenizer 0.2.1",
+ "alpino-tokenizer 0.3.0",
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "conllu 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -22,7 +22,7 @@ dependencies = [
 
 [[package]]
 name = "alpino-tokenizer"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "prost 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -1,6 +1,6 @@
 [package]
 name = "alpino-tokenize"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Daniël de Kok <me@danieldk.eu>"]
 edition = "2018"
 description = "Wrapper around the Alpino tokenizer for Dutch"
@@ -9,7 +9,7 @@ repository = "https://github.com/danieldk/alpino-tokenizer.git"
 license = "LGPL-2.1-or-later"
 
 [dependencies]
-alpino-tokenizer = { path = "../alpino-tokenizer", version = "0.2" }
+alpino-tokenizer = { path = "../alpino-tokenizer", version = "0.3" }
 clap = "2"
 conllu = "0.5.1"
 lazy_static = "1"

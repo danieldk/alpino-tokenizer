@@ -1,0 +1,3 @@
+This is a toy tokenizer protobuf for testing. It is based on the Alpino
+tokenizer, but has *many* rules removed. Therefore, it should not be used
+outside testing.
