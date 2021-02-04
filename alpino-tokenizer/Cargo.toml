@@ -10,7 +10,7 @@ edition = "2018"
 
 [dependencies]
 lazy_static = "1"
-prost = "0.6"
+prost = "0.7"
 prost-derive = "0.6"
 regex = "1"
 static_assertions = "1"
