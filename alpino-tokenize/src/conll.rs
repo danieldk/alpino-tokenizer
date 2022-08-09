@@ -91,7 +91,7 @@ impl ConlluApp {
 }
 
 impl TokenizeApp for ConlluApp {
-    fn app() -> App<'static, 'static> {
+    fn app() -> App<'static> {
         App::new("conllu")
             .about("Tokenize input and output as CoNLL-X")
             .arg(
@@ -104,7 +104,7 @@ impl TokenizeApp for ConlluApp {
             .arg(Arg::with_name(OUTPUT).help("Output CoNLL-X").index(3))
             .arg(
                 Arg::with_name(IDENTIFIERS)
-                    .short("i")
+                    .short('i')
                     .help("Add paragraph/sentence identifiers"),
             )
             .arg(
