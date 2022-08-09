@@ -3,12 +3,12 @@ use std::io::{BufRead, BufReader, BufWriter};
 
 use alpino_tokenizer::{AlpinoTokenizer, Tokenizer};
 use clap::{App, Arg, ArgMatches};
-use conllu::graph::{Comment, Sentence};
 use conllu::io::{WriteSentence, Writer};
-use conllu::token::TokenBuilder;
 use lazy_static::lazy_static;
 use regex::Regex;
 use stdinout::{Input, OrExit, Output};
+use udgraph::graph::{Comment, Sentence};
+use udgraph::token::TokenBuilder;
 
 use crate::TokenizeApp;
 

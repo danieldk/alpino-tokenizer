@@ -11,7 +11,8 @@ license = "LGPL-2.1-or-later"
 [dependencies]
 alpino-tokenizer = { path = "../alpino-tokenizer", version = "0.3" }
 clap = "2"
-conllu = "0.5.1"
+conllu = "0.8"
 lazy_static = "1"
 regex = "1"
 stdinout = "0.4"
+udgraph = "0.8"
