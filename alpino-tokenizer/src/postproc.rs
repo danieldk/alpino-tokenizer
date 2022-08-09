@@ -71,7 +71,7 @@ fn remove_enumeration_markers(text: &str) -> Cow<str> {
         static ref RE: Regex = Regex::new("([0-9]+)#(\\s)").unwrap();
     }
 
-    RE.replace_all(&text, "$1.$2")
+    RE.replace_all(text, "$1.$2")
 }
 
 #[cfg(test)]
