@@ -25,6 +25,7 @@ pub enum SmallString {
     Array { data: [u8; SMALL_STR_LEN], len: u8 },
 
     /// Long string representation.
+    #[allow(clippy::box_collection)]
     String(Box<String>),
 }
 
@@ -43,7 +44,7 @@ impl Deref for SmallString {
                 // This is safe, since the string data was copied from &str or String.
                 str::from_utf8_unchecked(&data[..*len as usize])
             },
-            SmallString::String(s) => &s,
+            SmallString::String(s) => s,
         }
     }
 }
@@ -89,7 +90,7 @@ mod tests {
     fn small_string_from_str() {
         // This would fail on < 32-bit machines.
         let small = SmallString::from("hello");
-        assert!(matches!(small, SmallString::Array {..}));
+        assert!(matches!(small, SmallString::Array { .. }));
         assert_eq!(&*small, "hello");
 
         let large = SmallString::from(LOREM_IPSUM);
@@ -101,7 +102,7 @@ mod tests {
     fn small_string_from_string() {
         // This would fail on < 32-bit machines.
         let small = SmallString::from("hello".to_string());
-        assert!(matches!(small, SmallString::Array {..}));
+        assert!(matches!(small, SmallString::Array { .. }));
         assert_eq!(&*small, "hello");
 
         let large = SmallString::from(LOREM_IPSUM.to_string());

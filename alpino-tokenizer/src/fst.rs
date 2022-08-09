@@ -44,7 +44,7 @@ struct Transition {
 
     pub is_last_of_state: bool,
 
-    pub is_final_state: bool,
+    pub _is_final_state: bool,
 
     pub next: u32,
 
@@ -58,7 +58,7 @@ impl From<TransitionProto> for Transition {
         Self {
             symbol: trans.symbol,
             is_last_of_state: trans.is_last_of_state,
-            is_final_state: trans.is_final_state,
+            _is_final_state: trans.is_final_state,
             next: trans.next,
             output: trans.output.into(),
             final_output: trans.final_output.into(),
