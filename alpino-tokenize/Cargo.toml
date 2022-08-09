@@ -10,7 +10,8 @@ license = "LGPL-2.1-or-later"
 
 [dependencies]
 alpino-tokenizer = { path = "../alpino-tokenizer", version = "0.3" }
-clap = "2"
+clap = "3"
+clap_complete = "3"
 conllu = "0.8"
 lazy_static = "1"
 regex = "1"
