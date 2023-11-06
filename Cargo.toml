@@ -1,2 +1,3 @@
 [workspace]
 members = ["alpino-tokenizer", "alpino-tokenize"]
+resolver = "2"
