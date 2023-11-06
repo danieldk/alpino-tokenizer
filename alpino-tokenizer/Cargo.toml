@@ -6,7 +6,8 @@ description = "Wrapper around the Alpino tokenizer for Dutch"
 homepage = "https://github.com/danieldk/alpino-tokenizer"
 repository = "https://github.com/danieldk/alpino-tokenizer.git"
 license = "Apache-2.0"
-edition = "2018"
+edition = "2021"
+rust-version = "1.60.0"
 
 [dependencies]
 lazy_static = "1"

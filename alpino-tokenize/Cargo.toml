@@ -2,11 +2,12 @@
 name = "alpino-tokenize"
 version = "0.3.0"
 authors = ["Daniël de Kok <me@danieldk.eu>"]
-edition = "2018"
+edition = "2021"
 description = "Wrapper around the Alpino tokenizer for Dutch"
 homepage = "https://github.com/danieldk/alpino-tokenizer"
 repository = "https://github.com/danieldk/alpino-tokenizer.git"
 license = "LGPL-2.1-or-later"
+rust-version = "1.60.0"
 
 [dependencies]
 alpino-tokenizer = { path = "../alpino-tokenizer", version = "0.3" }
