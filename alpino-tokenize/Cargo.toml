@@ -1,6 +1,6 @@
 [package]
 name = "alpino-tokenize"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Daniël de Kok <me@danieldk.eu>"]
 edition = "2021"
 description = "Wrapper around the Alpino tokenizer for Dutch"
@@ -10,7 +10,7 @@ license = "LGPL-2.1-or-later"
 rust-version = "1.60.0"
 
 [dependencies]
-alpino-tokenizer = { path = "../alpino-tokenizer", version = "0.3" }
+alpino-tokenizer = { path = "../alpino-tokenizer", version = "0.4" }
 clap = "3"
 clap_complete = "3"
 conllu = "0.8"
